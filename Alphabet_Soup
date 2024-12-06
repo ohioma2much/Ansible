@@ -1,0 +1,63 @@
+def parse_input(file_content):
+    lines = file_content.strip().split('\n')
+    rows, cols = map(int, lines[0].strip().split('x'))
+    grid = [line.strip().split() for line in lines[1:rows + 1]]
+    words = [line.strip() for line in lines[rows + 1:]]
+    return grid, words
+
+
+def search_word(grid, word):
+    rows, cols = len(grid), len(grid[0])
+    directions = [(0, 1), (1, 0), (1, 1), (-1, 1), (1, -1), (-1, -1), (0, -1), (-1, 0)]
+
+    def is_valid(x, y):
+        return 0 <= x < rows and 0 <= y < cols
+
+    def check_direction(x, y, dx, dy):
+        for i in range(len(word)):
+            nx, ny = x + i * dx, y + i * dy
+            if not is_valid(nx, ny) or grid[nx][ny] != word[i]:
+                return False
+        return True
+
+    for x in range(rows):
+        for y in range(cols):
+            for dx, dy in directions:
+                if check_direction(x, y, dx, dy):
+                    end_x, end_y = x + (len(word) - 1) * dx, y + (len(word) - 1) * dy
+                    return (x, y), (end_x, end_y)
+    return None
+
+
+def find_words(grid, words):
+    results = []
+    for word in words:
+        result = search_word(grid, word)
+        if result:
+            results.append((word, result[0], result[1]))
+    return results
+
+
+def main(file_content):
+    grid, words = parse_input(file_content)
+    results = find_words(grid, words)
+
+    for word, start, end in results:
+        print(f"{word} {start[0]}:{start[1]} {end[0]}:{end[1]}")
+
+
+file_content = """7x7
+L J X Y D K U
+T E X G O D I
+E X T W Q C S
+B L A C K G H
+K O O C A Q W
+I U O D H T U
+S E L L O I F
+LET
+GOD
+BLACK
+CAT
+SELL"""
+
+main(file_content)
